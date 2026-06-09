@@ -10,4 +10,5 @@ sealed class NavRoutes(val route: String) {
     object ErrorScreen             : NavRoutes("errorScreen")
     object CategoryFilterScreen    : NavRoutes("categoryFilterScreen")
     object DatePickerScreen        : NavRoutes("datePickerScreen")
+    object SettingsScreen          : NavRoutes("settingsScreen")
 }

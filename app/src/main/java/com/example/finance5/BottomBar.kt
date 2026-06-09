@@ -4,14 +4,12 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.compose.currentBackStackEntryAsState
 import kotlin.collections.contains
 
 @Composable
-fun NavBar(navController: NavController, currentRoute: String?) {
+fun BottomBar(navController: NavController, currentRoute: String?) {
     if (currentRoute !in
         listOf(NavRoutes.TransactionListScreen.route, NavRoutes.CategoryListScreen.route))
         return
@@ -42,7 +40,8 @@ fun NavBar(navController: NavController, currentRoute: String?) {
 object NavBarItems {
     val barItems = listOf(
         BarItem("Транзакции", NavRoutes.TransactionListScreen.route),
-        BarItem("Категории", NavRoutes.CategoryListScreen.route)
+        BarItem("Категории", NavRoutes.CategoryListScreen.route),
+        BarItem("Настройки", NavRoutes.SettingsScreen.route)
     )
 }
 

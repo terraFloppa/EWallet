@@ -14,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -33,6 +34,7 @@ import androidx.navigation.navArgument
 import com.example.finance5.ui.screen.CategoryCreateScreen
 import com.example.finance5.ui.screen.CategoryEditScreen
 import com.example.finance5.ui.screen.CategoryListScreen
+import com.example.finance5.ui.screen.SettingsScreen
 import com.example.finance5.ui.screen.TransactionCreateScreen
 import com.example.finance5.ui.screen.TransactionEditScreen
 import com.example.finance5.ui.screen.dialog.CategoryFilterScreen
@@ -102,12 +104,14 @@ fun Main(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
+    val context = LocalContext.current
+
     Scaffold(
         topBar = {
             TopBar(navController, categoryWithTotalSumViewModel, filterViewModel, currentRoute)
         },
         bottomBar = {
-            NavBar(navController, currentRoute)
+            BottomBar(navController, currentRoute)
         },
         snackbarHost = {
             SnackbarHost(snackbarHostState)
@@ -150,7 +154,12 @@ fun Main(
                     CategoryEditScreen(navController, categoryViewModel, snackbarHostState, scope, navBackStack.arguments?.getInt("id"))
                 }
 
-                // Error
+                // Other
+                composable(NavRoutes.SettingsScreen.route) {
+                    SettingsScreen(context)
+                }
+
+                // dialog
                 dialog(NavRoutes.ErrorScreen.route) {
                     ErrorScreen()
                 }
