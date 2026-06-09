@@ -6,7 +6,6 @@ import com.example.finance5.data.entity.Category
 import com.example.finance5.data.repository.ICategoryRepository
 import com.example.finance5.ui.state.item.CategoryItemUiState
 import com.example.finance5.ui.state.list.CategoryListUiState
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,60 +15,49 @@ import kotlinx.coroutines.launch
 class CategoryViewModel(
     private val repository: ICategoryRepository
 ) : ViewModel() {
-    // Expose screen UI state
+    // Состояние UI экрана категорий (доступно для чтения из Compose)
     private val _uiState = MutableStateFlow(CategoryListUiState())
     val uiState: StateFlow<CategoryListUiState> = _uiState.asStateFlow()
 
-    // TODO WHAT is JOB, privateset ViewModel
-    private var fetchJob: Job? = null
+    init {
+        // Начинаем наблюдение за категориями сразу при создании ViewModel
+        observeCategories()
+    }
 
-    fun fetchCategories() {
-        fetchJob?.cancel()
-        fetchJob = viewModelScope.launch {
-           val categories = repository.fetchCategories()
-
-            _uiState.update { currentState ->
-                currentState.copy(
-                    categoryItemUiStateList = categories.map {
-                        CategoryItemUiState(
-                            it.name,
-                            it.type,
-                            it.id
-                        )
-                    }
-                )
+    private fun observeCategories() {
+        viewModelScope.launch {
+            // Подписываемся на Flow поток изменений из репозитория
+            repository.fetchCategories().collect { categories ->
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        categoryItemUiStateList = categories.map {
+                            CategoryItemUiState(
+                                name = it.name,
+                                type = it.type,
+                                id = it.id
+                            )
+                        }
+                    )
+                }
             }
         }
     }
 
-//    fun fetchCategoryById(id: Int) : CategoryItemUiState {
-//        fetchJob?.cancel()
-//        fetchJob = viewModelScope.launch {
-//
-//        }
-//    }
-
     fun insertCategory(category: Category) {
-        fetchJob?.cancel()
-        fetchJob = viewModelScope.launch {
+        viewModelScope.launch {
             repository.insertCategory(category)
         }
-        fetchCategories()
     }
 
     fun updateCategory(category: Category) {
-        fetchJob?.cancel()
-        fetchJob = viewModelScope.launch {
+        viewModelScope.launch {
             repository.updateCategory(category)
         }
-        fetchCategories()
     }
 
     fun deleteCategory(category: Category) {
-        fetchJob?.cancel()
-        fetchJob = viewModelScope.launch {
+        viewModelScope.launch {
             repository.deleteCategory(category)
         }
-        fetchCategories()
     }
 }

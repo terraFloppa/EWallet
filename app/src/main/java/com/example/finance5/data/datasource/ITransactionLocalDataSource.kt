@@ -2,10 +2,11 @@ package com.example.finance5.data.datasource
 
 import com.example.finance5.data.entity.Transaction
 import com.example.finance5.data.entity.TransactionWithCategory
+import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
 interface ITransactionLocalDataSource {
-    suspend fun fetchTransactions() : List<Transaction>
+    fun fetchTransactions() : Flow<List<Transaction>>
 
     suspend fun insertTransaction(transaction: Transaction)
 
@@ -13,7 +14,7 @@ interface ITransactionLocalDataSource {
 
     suspend fun deleteTransaction(transaction: Transaction)
 
-    suspend fun fetchTransactionsWithCategories(): List<TransactionWithCategory>
+    fun fetchTransactionsWithCategories(): Flow<List<TransactionWithCategory>>
 
-    suspend fun fetchTransactionsWithCategoriesFromPeriod(first: LocalDate, second: LocalDate): List<TransactionWithCategory>?
+    //fun fetchTransactionsWithCategoriesFromPeriod(first: LocalDate, second: LocalDate): Flow<List<TransactionWithCategory>?>
 }

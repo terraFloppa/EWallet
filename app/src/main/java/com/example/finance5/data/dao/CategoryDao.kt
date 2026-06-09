@@ -8,25 +8,26 @@ import androidx.room.Transaction
 import androidx.room.Update
 import com.example.finance5.data.entity.Category
 import com.example.finance5.data.entity.CategoryWithTransactions
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CategoryDao {
     @Query("SELECT * FROM categories")
-    fun fetchCategories() : List<Category>
+    fun fetchCategories() : Flow<List<Category>>
 
     @Query("SELECT * FROM categories WHERE id == :id")
-    fun fetchCategoryById(id: Int) : Category
+    suspend fun fetchCategoryById(id: Int) : Category
 
     @Insert
-    fun insertCategory(category: Category)
+    suspend fun insertCategory(category: Category)
 
     @Update
-    fun updateCategory(category: Category)
+    suspend fun updateCategory(category: Category)
 
     @Delete
-    fun deleteCategory(category: Category)
+    suspend fun deleteCategory(category: Category)
 
     @Transaction
     @Query("SELECT * FROM categories")
-    fun fetchCategoriesWithTransactions(): List<CategoryWithTransactions>
+    fun fetchCategoriesWithTransactions(): Flow<List<CategoryWithTransactions>>
 }

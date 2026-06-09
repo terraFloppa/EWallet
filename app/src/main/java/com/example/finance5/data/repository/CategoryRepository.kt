@@ -3,11 +3,12 @@ package com.example.finance5.data.repository
 import com.example.finance5.data.entity.Category
 import com.example.finance5.data.datasource.ICategoryLocalDataSource
 import com.example.finance5.data.entity.CategoryWithTransactions
+import kotlinx.coroutines.flow.Flow
 
 class CategoryRepository(
     val dataSource: ICategoryLocalDataSource
 ) : ICategoryRepository {
-    override suspend fun fetchCategories(): List<Category> {
+    override fun fetchCategories(): Flow<List<Category>> {
         return dataSource.fetchCategories()
     }
 
@@ -27,7 +28,7 @@ class CategoryRepository(
         dataSource.deleteCategory(category)
     }
 
-    override suspend fun fetchCategoriesWithTransactions(): List<CategoryWithTransactions> {
+    override fun fetchCategoriesWithTransactions(): Flow<List<CategoryWithTransactions>> {
         return dataSource.fetchCategoriesWithTransactions()
     }
 }

@@ -8,27 +8,28 @@ import androidx.room.Transaction as _Transaction
 import androidx.room.Update
 import com.example.finance5.data.entity.Transaction
 import com.example.finance5.data.entity.TransactionWithCategory
+import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
 @Dao
 interface TransactionDao {
-    @Query("SELECT * FROM transactions")
-    fun fetchTransactions() : List<Transaction>
+    @Query("SELECT * FROM transactions ORDER BY date DESC")
+    fun fetchTransactions() : Flow<List<Transaction>>
 
     @Insert
-    fun insertTransaction(transaction: Transaction)
+    suspend fun insertTransaction(transaction: Transaction)
 
     @Update
-    fun updateTransaction(transaction: Transaction)
+    suspend fun updateTransaction(transaction: Transaction)
 
     @Delete
-    fun deleteTransaction(transaction: Transaction)
+    suspend fun deleteTransaction(transaction: Transaction)
 
     @_Transaction
     @Query("SELECT * FROM transactions")
-    fun fetchTransactionsWithCategories(): List<TransactionWithCategory>
+    fun fetchTransactionsWithCategories(): Flow<List<TransactionWithCategory>>
 
-    @_Transaction
-    @Query("SELECT * FROM transactions WHERE (date > :first & date < :second)")
-    fun fetchTransactionsWithCategoriesFromPeriod(first: LocalDate, second: LocalDate): List<TransactionWithCategory>?
+//    @_Transaction
+//    @Query("SELECT * FROM transactions WHERE (date > :first & date < :second)")
+//    fun fetchTransactionsWithCategoriesFromPeriod(first: LocalDate, second: LocalDate): Flow<List<TransactionWithCategory>>?
 }

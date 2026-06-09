@@ -2,11 +2,12 @@ package com.example.finance5.data.datasource
 
 import com.example.finance5.data.entity.Category
 import com.example.finance5.data.entity.CategoryWithTransactions
+import kotlinx.coroutines.flow.Flow
 
 interface ICategoryLocalDataSource {
-    suspend fun fetchCategories() : List<Category>
+    fun fetchCategories() : Flow<List<Category>>
 
-    fun fetchCategoryById(id: Int) : Category
+    suspend fun fetchCategoryById(id: Int) : Category
 
     suspend fun insertCategory(category: Category)
 
@@ -14,5 +15,5 @@ interface ICategoryLocalDataSource {
 
     suspend fun deleteCategory(category: Category)
 
-    suspend fun fetchCategoriesWithTransactions(): List<CategoryWithTransactions>
+    fun fetchCategoriesWithTransactions(): Flow<List<CategoryWithTransactions>>
 }

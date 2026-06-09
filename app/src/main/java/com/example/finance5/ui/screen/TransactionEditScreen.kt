@@ -47,13 +47,10 @@ fun TransactionEditScreen(
     scope: CoroutineScope,
     id: Int?
 ) {
-    val transactions by transactionViewModel.uiState.collectAsStateWithLifecycle()
-    transactionViewModel.fetchTransactions()
+    val transactionUiState by transactionViewModel.uiState.collectAsStateWithLifecycle()
+    val categoryUiState by categoryViewModel.uiState.collectAsStateWithLifecycle()
 
-    val categories by categoryViewModel.uiState.collectAsStateWithLifecycle()
-    categoryViewModel.fetchCategories()
-
-    val transaction = transactions.transactionItems.find { it.id == id }
+    val transaction = transactionUiState.transactionItems.find { it.id == id }
 
     if (transaction == null)
         return
@@ -93,7 +90,7 @@ fun TransactionEditScreen(
                 onDismissRequest = { isExpanded = false },
                 modifier = Modifier.size(200.dp)
             ) {
-                for (c in categories.categoryItemUiStateList) {
+                for (c in categoryUiState.categoryItemUiStateList) {
                     DropdownMenuItem(
                         onClick = {
                             categoryState = c.id.toString()

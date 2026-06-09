@@ -2,9 +2,10 @@ package com.example.finance5.data.repository
 
 import com.example.finance5.data.entity.Category
 import com.example.finance5.data.entity.CategoryWithTransactions
+import kotlinx.coroutines.flow.Flow
 
 interface ICategoryRepository {
-    suspend fun fetchCategories() : List<Category>
+    fun fetchCategories() : Flow<List<Category>>
 
     suspend fun fetchCategoryById(id: Int) : Category
 
@@ -14,5 +15,5 @@ interface ICategoryRepository {
 
     suspend fun deleteCategory(category: Category)
 
-    suspend fun fetchCategoriesWithTransactions(): List<CategoryWithTransactions>
+    fun fetchCategoriesWithTransactions(): Flow<List<CategoryWithTransactions>>
 }

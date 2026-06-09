@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,15 +29,13 @@ import com.example.finance5.ui.viewmodel.TransactionWithCategoryViewModel
 @Composable
 fun TransactionListScreen(
     navController: NavController,
-    viewModel: TransactionWithCategoryViewModel,
+    transactionWithCategoryViewModel: TransactionWithCategoryViewModel,
     filterViewModel: FilterViewModel
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val transactionUiState by transactionWithCategoryViewModel.uiState.collectAsStateWithLifecycle()
     val periodUiState by filterViewModel.uiState.collectAsStateWithLifecycle()
 
     val vv = periodUiState.selectedPeriod
-
-    viewModel.fetchTransactionsWithCategories()
 
 //    viewModel.fetchTransactionsWithCategoriesFromPeriod(
 //        LocalDate.of(
@@ -50,8 +49,7 @@ fun TransactionListScreen(
 //            vv.dayOfMonth
 //        )
 //    )
-
-    val transactions = uiState.transactionWithCategoryItems
+    val transactions = transactionUiState.transactionWithCategoryItems
 
 
 //    val transactions = uiState.transactionWithCategoryItems.filter {

@@ -10,6 +10,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -31,6 +32,7 @@ import com.example.finance5.ui.viewmodel.CategoryViewModel
 import com.example.finance5.ui.viewmodel.TransactionViewModel
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.finance5.data.entity.Category
 import com.example.finance5.ui.screen.CategoryCreateScreen
 import com.example.finance5.ui.screen.CategoryEditScreen
 import com.example.finance5.ui.screen.CategoryListScreen
@@ -45,30 +47,25 @@ import com.example.finance5.ui.viewmodel.FilterViewModel
 import com.example.finance5.ui.viewmodel.TransactionWithCategoryViewModel
 
 class MainActivity : ComponentActivity() {
-    companion object {
-        lateinit var db: AppDatabase
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        db = Room.databaseBuilder(
-            applicationContext,
-            AppDatabase::class.java, "finance5_db"
-        ).allowMainThreadQueries().build()
-
-        val categoryRepository = CategoryRepository(
-            CategoryLocalDataSource(db.categoryDao())
-        )
-        val transactionRepository = TransactionRepository(
-            TransactionLocalDataSource(db.transactionDao())
-        )
+        val appContainer = (application as FinanceApplication)
+        val transactionRepository = appContainer.transactionRepository
+        val categoryRepository = appContainer.categoryRepository
 
         val categoryViewModel = CategoryViewModel(categoryRepository)
         val transactionViewModel = TransactionViewModel(transactionRepository)
         val categoryWithTotalSumViewModel = CategoryWithTotalSumViewModel(categoryRepository)
         val transactionWithCategoryViewModel = TransactionWithCategoryViewModel(transactionRepository)
         val monthYearViewModel = FilterViewModel(categoryRepository)
+
+//        val autoTransaction = Category(
+//            name = "Без категории",
+//            id = 0,
+//            type = CategoryType.EXPENSE
+//        )
+//        categoryViewModel.insertCategory(autoTransaction)
 
         enableEdgeToEdge()
         setContent {
@@ -93,8 +90,6 @@ fun Main(
     transactionWithCategoryViewModel: TransactionWithCategoryViewModel,
     filterViewModel: FilterViewModel
 ) {
-    filterViewModel.updateSelectedCategories()
-
     // TODO Что это?
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()

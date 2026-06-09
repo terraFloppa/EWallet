@@ -30,8 +30,8 @@ fun CategoryFilterScreen(filterViewModel: FilterViewModel, categoryViewModel: Ca
     val categoryUiState by categoryViewModel.uiState.collectAsStateWithLifecycle()
     val filterUiState by filterViewModel.uiState.collectAsStateWithLifecycle()
 
-    categoryViewModel.fetchCategories()
-    filterViewModel.updateSelectedCategories()
+//    categoryViewModel.fetchCategories()
+//    filterViewModel.updateSelectedCategories()
 
     val categories = categoryUiState.categoryItemUiStateList
     val selectedCategories = filterUiState.selectedCategories

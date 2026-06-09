@@ -48,10 +48,10 @@ fun TransactionCreateScreen(
     snackbarHostState: SnackbarHostState,
     scope: CoroutineScope
 ) {
-    val categories by categoryViewModel.uiState.collectAsStateWithLifecycle()
-    categoryViewModel.fetchCategories()
+    val transactionUiState by transactionViewModel.uiState.collectAsStateWithLifecycle()
+    val categoryUiState by categoryViewModel.uiState.collectAsStateWithLifecycle()
 
-    val categoryOptions = categories.categoryItemUiStateList
+    val categoryOptions = categoryUiState.categoryItemUiStateList
 
     if (categoryOptions.isEmpty()) {
 //        scope.launch {

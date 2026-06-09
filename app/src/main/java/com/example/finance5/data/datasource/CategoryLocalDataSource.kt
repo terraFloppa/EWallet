@@ -11,11 +11,11 @@ import kotlinx.coroutines.withContext
 class CategoryLocalDataSource (
     private val categoryDao: CategoryDao,
 ) : ICategoryLocalDataSource {
-    override suspend fun fetchCategories(): List<Category> {
+    override fun fetchCategories(): Flow<List<Category>> {
         return categoryDao.fetchCategories()
     }
 
-    override fun fetchCategoryById(id: Int): Category {
+    override suspend fun fetchCategoryById(id: Int): Category {
         return categoryDao.fetchCategoryById(id)
     }
 
@@ -31,7 +31,7 @@ class CategoryLocalDataSource (
         categoryDao.deleteCategory(category)
     }
 
-    override suspend fun fetchCategoriesWithTransactions(): List<CategoryWithTransactions> {
+    override fun fetchCategoriesWithTransactions(): Flow<List<CategoryWithTransactions>> {
         return categoryDao.fetchCategoriesWithTransactions()
     }
 }

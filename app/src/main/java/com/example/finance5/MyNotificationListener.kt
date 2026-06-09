@@ -3,55 +3,77 @@ package com.example.finance5
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import com.example.finance5.data.entity.Transaction
+import com.example.finance5.data.repository.TransactionRepository
 import com.example.finance5.ui.viewmodel.TransactionViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.ZoneId
+import kotlin.time.ExperimentalTime
+import java.time.Instant
 
 class MyNotificationListener: NotificationListenerService() {
+    private lateinit var repository: TransactionRepository
+
+    private val serviceScope = CoroutineScope(Dispatchers.IO) // Создаем область видимости для корутин (работа в фоне на IO-потоках)
+
+    // Системный метод жизненного цикла службы
+    override fun onCreate() {
+        super.onCreate()
+        // Здесь applicationContext гарантированно существует и готов к работе
+        repository = (applicationContext as FinanceApplication).transactionRepository
+    }
 
     // Срабатывает при появлении нового уведомления в шторке
+    @OptIn(ExperimentalTime::class)
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         sbn?.let {
             val packageName = it.packageName
+
+            // Быстрая фильтрация по пакету на Главном потоке (работает мгновенно)
+            if (packageName != "ru.sberbankmobile") return
+
             val extras = it.notification.extras
             val title = extras.getString("android.title") ?: ""
             val text = extras.getCharSequence("android.text")?.toString() ?: ""
-            val timestamp = it.postTime // Получаем системное время получения уведомления (в миллисекундах)
-            val dateConverter = DateConverter() // Конвертер даты
+            val timestamp = it.postTime
 
-            if (packageName != "ru.sberbankmobile")
-                return
+            if (!title.contains("Покупка", ignoreCase = true)) return
 
-            if (title.substringBefore(" ") != "Покупка")
-                return
+            // ВСЮ тяжелую работу (парсинг строк, конвертацию даты и запись в БД)
+            // уводим внутрь корутины на фоновый поток IO
+            serviceScope.launch {
+                try {
+                    // Безопасный парсинг суммы
+                    val amountString = text.substringAfter(" ").substringBefore(" ")
+                    val amount = amountString.toDoubleOrNull() ?: 0.0
 
-            val amount = text.substringAfter(" ").substringBefore(" ").toDouble()
+                    // Инициализация конвертера на фоновом потоке
+                    //val dateConverter = DateConverter()
+                    //val transactionDate = dateConverter.toLocalDate(timestamp.toString())
+                    // ПРАВИЛЬНАЯ конвертация Long-таймстампа в LocalDate
+                    val transactionDate: LocalDate = Instant.ofEpochMilli(timestamp)
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate()
 
-            // Передаем данные в модель
-            val transaction = Transaction(
-                amount = amount,
-                categoryId = 0,
-                date = dateConverter.toLocalDate(timestamp.toString())
-            )
+                    val transaction = Transaction(
+                        amount = amount,
+                        categoryId = 26,
+                        date = transactionDate
+                    )
 
-//            val transactionInfo = NotificationData(
-//                packageName = packageName,
-//                title = title,
-//                text = text,
-//                timestamp = timestamp
-//            )
+                    // Теперь вызов гарантированно безопасен
+                    repository.insertTransaction(transaction)
 
-            transactionViewModel.insertTransaction(transaction)
-
-            //NotificationStorage.addNotification(transactionInfo)
-
-//            val packageName = it.packageName // Имя пакета приложения (например, com.whatsapp)
-//            val extras = it.notification.extras
-//            val title = extras.getString("android.title") ?: ""
-//            val text = extras.getCharSequence("android.text")?.toString() ?: ""
-//
-//            //Log.d("NotificationLog", "Приложение: $packageName | Заголовок: $title | Текст: $text")
-//
-//            // Сохраняем уведомление в синглтон/репозиторий
-//            NotificationStorage.addNotification("[$packageName] $title: $text")
+                } catch (e: Exception) {
+                    // Логируем ошибку, чтобы служба не падала при непредвиденных форматах текста
+                    android.util.Log.e(
+                        "NotificationLog",
+                        "Ошибка парсинга или записи: ${e.message}"
+                    )
+                }
+            }
         }
     }
 }

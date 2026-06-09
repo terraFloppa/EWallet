@@ -21,6 +21,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.finance5.CategoryType
 import com.example.finance5.NavRoutes
+import com.example.finance5.data.entity.Category
 import com.example.finance5.ui.state.item.CategoryWithTotalSumItemUiState
 import com.example.finance5.ui.viewmodel.CategoryWithTotalSumViewModel
 import com.example.finance5.ui.viewmodel.FilterViewModel
@@ -28,17 +29,20 @@ import com.example.finance5.ui.viewmodel.FilterViewModel
 @Composable
 fun CategoryListScreen(
     navController: NavController,
-    viewModel: CategoryWithTotalSumViewModel,
+    categoryWithTotalSumViewModel: CategoryWithTotalSumViewModel,
     filterViewModel: FilterViewModel
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    viewModel.fetchCategoryWithTotalSum()
+
+
+
+
+    val categoryUiState by categoryWithTotalSumViewModel.uiState.collectAsStateWithLifecycle()
 
     //val periodUiState by periodViewModel.uiState.collectAsStateWithLifecycle()
 
-    val categories = uiState.categoryWithTotalSumItems
+    val categories = categoryUiState.categoryWithTotalSumItems
     val filteredCategories = categories.filter {
-        it.category.type == uiState.chosenType
+        it.category.type == categoryUiState.chosenType
     }
 
     LazyColumn {
@@ -64,7 +68,7 @@ fun CategoryItem(navController: NavController, entry: CategoryWithTotalSumItemUi
             .padding(10.dp, 0.dp)
     ) {
         Text(
-            text = entry.category.name,
+            text = entry.category.name + " " + entry.category.id,
             modifier = Modifier.align(Alignment.CenterEnd)
         )
         when (entry.category.type) {

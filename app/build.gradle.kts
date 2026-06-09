@@ -46,6 +46,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.compose.runtime)
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
 

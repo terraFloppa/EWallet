@@ -31,10 +31,9 @@ fun CategoryEditScreen(
     scope: CoroutineScope,
     id: Int?
 ) {
-    val categories by viewModel.uiState.collectAsStateWithLifecycle()
-    viewModel.fetchCategories()
+    val categoryUiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    val category = categories.categoryItemUiStateList.find { it.id == id }
+    val category = categoryUiState.categoryItemUiStateList.find { it.id == id }
 
     if (category == null)
         return

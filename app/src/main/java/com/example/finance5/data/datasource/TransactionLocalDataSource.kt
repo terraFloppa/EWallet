@@ -3,12 +3,13 @@ package com.example.finance5.data.datasource
 import com.example.finance5.data.dao.TransactionDao
 import com.example.finance5.data.entity.Transaction
 import com.example.finance5.data.entity.TransactionWithCategory
+import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
 class TransactionLocalDataSource(
     private val transactionDao: TransactionDao
 ) : ITransactionLocalDataSource {
-    override suspend fun fetchTransactions(): List<Transaction> {
+    override fun fetchTransactions(): Flow<List<Transaction>> {
         return transactionDao.fetchTransactions()
     }
 
@@ -24,14 +25,14 @@ class TransactionLocalDataSource(
         transactionDao.deleteTransaction(transaction)
     }
 
-    override suspend fun fetchTransactionsWithCategories(): List<TransactionWithCategory> {
+    override fun fetchTransactionsWithCategories(): Flow<List<TransactionWithCategory>> {
         return transactionDao.fetchTransactionsWithCategories()
     }
 
-    override suspend fun fetchTransactionsWithCategoriesFromPeriod(
-        first: LocalDate,
-        second: LocalDate
-    ): List<TransactionWithCategory>? {
-        return transactionDao.fetchTransactionsWithCategoriesFromPeriod(first, second)
-    }
+//    override fun fetchTransactionsWithCategoriesFromPeriod(
+//        first: LocalDate,
+//        second: LocalDate
+//    ): Flow<List<TransactionWithCategory>?> {
+//        return transactionDao.fetchTransactionsWithCategoriesFromPeriod(first, second)
+//    }
 }
