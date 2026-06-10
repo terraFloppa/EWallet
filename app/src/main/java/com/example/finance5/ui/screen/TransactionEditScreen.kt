@@ -1,16 +1,11 @@
 package com.example.finance5.ui.screen
 
-import androidx.compose.foundation.layout.Box
+import androidx.collection.emptyLongSet
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -23,11 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.finance5.NavRoutes
@@ -51,6 +42,13 @@ fun TransactionEditScreen(
     val categoryUiState by categoryViewModel.uiState.collectAsStateWithLifecycle()
 
     val transaction = transactionUiState.transactionItems.find { it.id == id }
+    val categoryOptions = categoryUiState.categoryItemUiStateList
+
+    val selectedCategory = remember { mutableStateOf(categoryOptions[0]) }
+    val isExpanded = remember { mutableStateOf(false) }
+    val datePickerState = rememberDatePickerState()
+    var selectedDate by remember { mutableStateOf<Long?>(null) }
+    var showModal by remember { mutableStateOf(false) }
 
     if (transaction == null)
         return
@@ -58,13 +56,6 @@ fun TransactionEditScreen(
     // Field inputs
     var amountState by remember { mutableStateOf(transaction.amount.toString()) }
     var categoryState by remember { mutableStateOf(transaction.categoryId.toString()) }
-
-    // Date picker values
-    val datePickerState = rememberDatePickerState()
-    val dateFormatter = remember { DatePickerDefaults.dateFormatter() }
-
-    // Dropdown vars
-    var isExpanded by remember { mutableStateOf(false) }
 
     // Button Values
     val amountValue = amountState.toDoubleOrNull() ?: 0.0
@@ -79,86 +70,110 @@ fun TransactionEditScreen(
             placeholder = { Text("Введите сумму") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
-        // Категория
-        Box (
+        // Выбор категории
+        SelectCategoryButton(categoryOptions, selectedCategory, isExpanded)
+        // Выбор даты
+        Button(
+            onClick = { showModal = true }
         ) {
-            Button (onClick = { isExpanded = !isExpanded }) {
-                Text(text = "Категория")
+            if (selectedDate == null) {
+                Text("Введите дату")
             }
-            DropdownMenu(
-                expanded = isExpanded,
-                onDismissRequest = { isExpanded = false },
-                modifier = Modifier.size(200.dp)
-            ) {
-                for (c in categoryUiState.categoryItemUiStateList) {
-                    DropdownMenuItem(
-                        onClick = {
-                            categoryState = c.id.toString()
-                            isExpanded = false
-                        },
-                        text = { Text(c.name) }
-                    )
-                }
+            else {
+                Text(selectedDate.toString())
             }
         }
-        // Выбор даты
-        DatePicker(
-            state = datePickerState,
-            dateFormatter = dateFormatter,
-            modifier = Modifier
-                .fillMaxWidth()
-                .graphicsLayer(
-                    scaleX = 1f,
-                    scaleY = 1f,
-                    transformOrigin = TransformOrigin(0f, 0f)
-                )
-        )
+        if (showModal) {
+            DatePickerModal(
+                onDateSelected = { selectedDate = it },
+                onDismiss = { showModal = false },
+                datePickerState
+            )
+        }
         // Кнопки
         Row {
             // Кнопка сохранения
-            TextButton(
-                onClick = {
-                    if (amountValue > 0 && categoryValue > 0) {
-                        transactionViewModel.updateTransaction(
-                            Transaction(
-                                amount = amountValue,
-                                categoryId = categoryValue,
-                                date = datePickerState.getSelectedDate()
-                            ),
-                        )
-                        navController.navigate(NavRoutes.TransactionListScreen.route)
-                    }
-                    else {
-                        scope.launch {
-                            snackbarHostState.showSnackbar("Введите все значения!")
-                        }
-                    }
-                }
-            ) {
-                Text("Сохранить")
-            }
+            SaveButton(
+                amountValue, categoryValue, transactionViewModel, datePickerState, id,
+                navController, scope, snackbarHostState
+            )
             // Кнопка удаления
-            TextButton(
-                onClick = {
-                    if (amountValue > 0 && categoryValue > 0) {
-                        transactionViewModel.deleteTransaction(
-                            Transaction(
-                                amount = amountValue,
-                                categoryId = categoryValue,
-                                date = datePickerState.getSelectedDate()
-                            ),
-                        )
-                        navController.navigate(NavRoutes.TransactionListScreen.route)
-                    }
-                    else {
-                        scope.launch {
-                            snackbarHostState.showSnackbar("Введите все значения!")
-                        }
-                    }
+            DeleteButton(amountValue, categoryValue, transactionViewModel, datePickerState, id,
+                navController, scope, snackbarHostState
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DeleteButton(
+    amountValue: Double,
+    categoryValue: Int,
+    transactionViewModel: TransactionViewModel,
+    datePickerState: DatePickerState,
+    id: Int?,
+    navController: NavController,
+    scope: CoroutineScope,
+    snackbarHostState: SnackbarHostState
+) {
+    TextButton(
+        onClick = {
+            //&& categoryValue > 0
+            if (amountValue > 0 ) {
+                transactionViewModel.deleteTransaction(
+                    Transaction(
+                        amount = amountValue,
+                        categoryId = categoryValue,
+                        date = datePickerState.getSelectedDate(),
+                        id = id!!
+                    ),
+                )
+                navController.navigate(NavRoutes.TransactionListScreen.route)
+            }
+            else {
+                scope.launch {
+                    snackbarHostState.showSnackbar("Введите все значения!")
                 }
-            ) {
-                Text("Удалить")
             }
         }
+    ) {
+        Text("Удалить")
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SaveButton(
+    amountValue: Double,
+    categoryValue: Int,
+    transactionViewModel: TransactionViewModel,
+    datePickerState: DatePickerState,
+    id: Int?,
+    navController: NavController,
+    scope: CoroutineScope,
+    snackbarHostState: SnackbarHostState
+) {
+    TextButton(
+        onClick = {
+            if (amountValue > 0 && categoryValue > 0) {
+                transactionViewModel.updateTransaction(
+                    Transaction(
+                        amount = amountValue,
+                        categoryId = categoryValue,
+                        date = datePickerState.getSelectedDate(),
+                        id = id!!
+                    ),
+                )
+                navController.navigate(NavRoutes.TransactionListScreen.route)
+            }
+            else {
+                scope.launch {
+                    snackbarHostState.showSnackbar("Введите все значения!")
+                }
+            }
+        }
+    ) {
+        Text("Сохранить")
     }
 }

@@ -67,18 +67,13 @@ fun TransactionCreateScreen(
     // Actual values
     val amountValue = amountInput.toDoubleOrNull() ?: 0.0
     val selectedCategory = remember { mutableStateOf(categoryOptions[0]) }
-    //val categoryValue = categoryInput.toIntOrNull() ?: 0
 
-    // Dropdown values
     val isExpanded = remember { mutableStateOf(false) }
 
     // Date picker values
     val datePickerState = rememberDatePickerState()
     var selectedDate by remember { mutableStateOf<Long?>(null) }
     var showModal by remember { mutableStateOf(false) }
-//    val onDismiss = { showModal = false }
-//    val onDateSelected = { it: Long? -> selectedDate = it }
-//    val dateFormatter = remember { DatePickerDefaults.dateFormatter() }
 
     Column(
         modifier = Modifier.fillMaxSize().padding(40.dp, 0.dp),

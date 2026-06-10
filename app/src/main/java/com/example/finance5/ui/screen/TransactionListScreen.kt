@@ -37,27 +37,15 @@ fun TransactionListScreen(
 
     val vv = periodUiState.selectedPeriod
 
-//    viewModel.fetchTransactionsWithCategoriesFromPeriod(
-//        LocalDate.of(
-//            vv.year,
-//            vv.month - 1,
-//            vv.dayOfMonth
-//        ),
-//        LocalDate.of(
-//            vv.year,
-//            vv.month + 1,
-//            vv.dayOfMonth
-//        )
-//    )
+//    val transactions = transactionUiState.transactionWithCategoryItems
     val transactions = transactionUiState.transactionWithCategoryItems
+        .filter {
+            it.transaction.date?.month!! == periodUiState.selectedPeriod.month
+                    && it.transaction.date.year == periodUiState.selectedPeriod.year
+        }
+        //.sortedBy { it.transaction.date?.dayOfMonth }
 
-
-//    val transactions = uiState.transactionWithCategoryItems.filter {
-//        it.transaction.date?.month!! == periodUiState.chosenYearMonth.month
-//                && it.transaction.date.year == periodUiState.chosenYearMonth.year
-//    }
-
-    val groups = transactions.groupBy { it.transaction.date }
+    val groups = transactions.reversed().groupBy { it.transaction.date }
 
     LazyColumn {
         groups.forEach { (date, transactions) ->

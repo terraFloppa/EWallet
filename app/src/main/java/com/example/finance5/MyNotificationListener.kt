@@ -45,14 +45,9 @@ class MyNotificationListener: NotificationListenerService() {
             // уводим внутрь корутины на фоновый поток IO
             serviceScope.launch {
                 try {
-                    // Безопасный парсинг суммы
                     val amountString = text.substringAfter(" ").substringBefore(" ")
                     val amount = amountString.toDoubleOrNull() ?: 0.0
 
-                    // Инициализация конвертера на фоновом потоке
-                    //val dateConverter = DateConverter()
-                    //val transactionDate = dateConverter.toLocalDate(timestamp.toString())
-                    // ПРАВИЛЬНАЯ конвертация Long-таймстампа в LocalDate
                     val transactionDate: LocalDate = Instant.ofEpochMilli(timestamp)
                         .atZone(ZoneId.systemDefault())
                         .toLocalDate()
