@@ -49,7 +49,7 @@ class SmsReceiver : BroadcastReceiver() {
 
             Log.d("SmsLog", "От: $sender | Текст: $text")
 
-            // Фильтруем отправителя (например, только от номера 900 или банка)
+            // Фильтруем отправителя
             if (sender != "900") return
 
             serviceScope.launch {
