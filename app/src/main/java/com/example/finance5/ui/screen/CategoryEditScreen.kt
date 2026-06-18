@@ -1,9 +1,13 @@
 package com.example.finance5.ui.screen
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -13,11 +17,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.finance5.CategoryType
 import com.example.finance5.NavRoutes
+import com.example.finance5.SelectTypeButton
 import com.example.finance5.data.entity.Category
 import com.example.finance5.ui.viewmodel.CategoryViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -41,8 +49,11 @@ fun CategoryEditScreen(
     var nameInput by remember { mutableStateOf(category.name) }
     var typeInput by remember { mutableStateOf(category.type) }
 
-    Column {
-        Text("Добавьте новую категорию")
+    Column(
+        modifier = Modifier.fillMaxSize().padding(40.dp, 0.dp),
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text("Измените категорию")
         // Название
         TextField(
             value = nameInput,
@@ -51,20 +62,19 @@ fun CategoryEditScreen(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
         )
         // Тип категории
-        Row {
-            Button(
-                onClick = {
-                    typeInput = CategoryType.INCOME
-                }
-            ) {
-                Text("Доход")
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(40.dp),
+            verticalAlignment = Alignment.Bottom
+        ) {
+            val underlinedButtonModifier = Modifier.weight(10f)
+
+            SelectTypeButton(underlinedButtonModifier, typeInput, CategoryType.EXPENSE) {
+                typeInput = CategoryType.EXPENSE
             }
-            Button(
-                onClick = {
-                    typeInput = CategoryType.EXPENSE
-                }
-            ) {
-                Text("Расход")
+            SelectTypeButton(underlinedButtonModifier, typeInput, CategoryType.INCOME) {
+                typeInput = CategoryType.INCOME
             }
         }
         // Кнопки

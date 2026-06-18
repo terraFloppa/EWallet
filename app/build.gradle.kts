@@ -46,6 +46,11 @@ android {
 }
 
 dependencies {
+    // Vico
+    implementation("com.patrykandpatrick.vico:compose:3.1.0")
+    implementation("com.patrykandpatrick.vico:compose-m3:3.1.0")
+
+
     implementation(libs.androidx.compose.runtime)
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 

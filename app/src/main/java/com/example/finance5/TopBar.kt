@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,6 +26,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.finance5.ui.viewmodel.CategoryWithTotalSumViewModel
 import com.example.finance5.ui.viewmodel.FilterViewModel
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @Composable
 fun TopBar(
@@ -39,8 +42,13 @@ fun TopBar(
 
     val filterUiState by filterViewModel.uiState.collectAsStateWithLifecycle()
     val categoryUiState by categoryWithTotalSumViewModel.uiState.collectAsStateWithLifecycle()
+
     val period = filterUiState.selectedPeriod
     val currentType = categoryUiState.chosenType
+
+    val russianDayOfWeekFormatter = remember {
+        DateTimeFormatter.ofPattern("LLLL", Locale("ru"))
+    }
 
     Column {
         Row(
@@ -61,7 +69,11 @@ fun TopBar(
                 ) {
                     Icon(painterResource(R.drawable.ic_chevron_left_icon), contentDescription = "Предыдущий месяц")
                 }
-                Text("${period.year} ${period.month}")
+
+                val monthRu = period?.format(russianDayOfWeekFormatter)
+                    ?.uppercase() ?: ""
+
+                Text("${period.year} $monthRu")
                 IconButton(
                     onClick = { filterViewModel.increase() },
                     modifier = Modifier.size(50.dp),
@@ -117,13 +129,13 @@ fun SwitchTypeRow(
 @Composable
 fun SelectTypeButton(
     modifier: Modifier,
-    currentType: CategoryType,
+    currentType: CategoryType?,
     chosenType: CategoryType,
     onClick: () -> Unit
 ) {
     val colors: ButtonColors = if (chosenType == currentType) {
         ButtonDefaults.textButtonColors(
-            containerColor = Color.LightGray,  // background color
+            containerColor = Color(0xFFBB86FC),  // background color
             contentColor = Color.White         // text color
         )
     }

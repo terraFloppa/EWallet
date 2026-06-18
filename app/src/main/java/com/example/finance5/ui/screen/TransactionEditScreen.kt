@@ -119,23 +119,15 @@ fun DeleteButton(
 ) {
     TextButton(
         onClick = {
-            //&& categoryValue > 0
-            if (amountValue > 0 ) {
-                transactionViewModel.deleteTransaction(
-                    Transaction(
-                        amount = amountValue,
-                        categoryId = categoryValue,
-                        date = datePickerState.getSelectedDate(),
-                        id = id!!
-                    ),
-                )
-                navController.navigate(NavRoutes.TransactionListScreen.route)
-            }
-            else {
-                scope.launch {
-                    snackbarHostState.showSnackbar("Введите все значения!")
-                }
-            }
+            transactionViewModel.deleteTransaction(
+                Transaction(
+                    amount = 0.0,
+                    categoryId = 0,
+                    date = null,
+                    id = id!!
+                ),
+            )
+            navController.navigate(NavRoutes.TransactionListScreen.route)
         }
     ) {
         Text("Удалить")
